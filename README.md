@@ -1,118 +1,50 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Projeto Plexus: Visão e Arquitetura
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 1. O Contexto do Nome "Plexus"
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Na anatomia humana, um *Plexo* (como o plexo nervoso ou vascular) é uma rede complexa e vital de ramificações que garante a comunicação ultrarrápida e o transporte de recursos entre o sistema nervoso central e o resto do corpo.
 
-## Description
+No nosso contexto de engenharia, **Plexus** representa exatamente a arquitetura do projeto: uma malha de comunicação de alta performance (gRPC/HTTP2) onde o Next.js e o NestJS trocam informações vitais (dados clínicos e arquivos pesados) através de contratos estritos (Protobuf) e fluxos contínuos (Streams), operando como um único organismo vivo, rápido e resiliente.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 2. Objetivo do Projeto
 
-## Project setup
+Desenvolver um sistema de gestão para clínicas (médicas/odontológicas) que atue como um "laboratório de alta engenharia". O foco principal **não** é criar regras de negócio complexas de saúde, mas sim utilizar esse escopo para **dominar o gRPC, Protocol Buffers e manipulação avançada de File System (I/O)**, garantindo escalabilidade, tipagem estrita de ponta a ponta e uso eficiente de memória.
 
-```bash
-$ npm install
-```
+## 3. Stack Tecnológico Base
 
-## Compile and run the project
+* **Frontend / BFF:** Next.js (App Router, Server Components e Server Actions atuando como clientes gRPC).
+* **Backend (Microserviço):** NestJS.
+* **Comunicação & Contratos:** gRPC e Protocol Buffers.
+* **Banco de Dados:** PostgreSQL.
+* **Linguagem:** TypeScript.
 
-```bash
-# development
-$ npm run start
+## 4. Features e Casos de Uso
 
-# watch mode
-$ npm run start:dev
+O escopo foi desenhado para testarmos todos os cenários de carga do gRPC aliados ao File System do Node.js:
 
-# production mode
-$ npm run start:prod
-```
+* **Feature A: Gestão de Pacientes (Unary RPC)**
+* *Ação:* Cadastro de pacientes e agendamentos estruturados.
+* *Objetivo Técnico:* Validar requisições e respostas simples (Texto/JSON-like), garantindo o funcionamento do contrato Protobuf e a latência mínima em operações CRUD padrão.
 
-## Run tests
 
-```bash
-# unit tests
-$ npm run test
+* **Feature B: Upload de Exames Médicos (Client Streaming)**
+* *Ação:* Formulário misto onde o médico envia metadados do exame junto com o arquivo físico pesado (ex: Radiografia em alta resolução).
+* *Objetivo Técnico:* Usar o padrão `oneof` no Protobuf. O frontend enviará os dados estruturados no primeiro "chunk" e os bytes do arquivo nos seguintes. O backend gravará diretamente no File System (`fs.createWriteStream`) com baixíssimo consumo de RAM (Non-blocking I/O).
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
+* **Feature C: Exportação de Prontuários e Faturamento (Server Streaming)**
+* *Ação:* Geração de planilhas (XLSX/CSV) ou PDFs pesados com o histórico de consultas e balanço financeiro da clínica.
+* *Objetivo Técnico:* O NestJS processará a compilação do arquivo no disco e fará o *stream* de leitura (`fs.createReadStream`) de volta para o Next.js repassar ao usuário, testando o controle de fluxo (*backpressure*).
 
-## Deployment
+* **Feature D: Chat em tempo Real (Server Streaming)**
+* *Ação:* Um chat em tempo real.
+* *Objetivo Técnico:* Uma comunicação em tempo real bidirecional por meio da comunicação gRCP.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 5. Nossos Padrões de Engenharia (Guia de Estilo e Arquitetura)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Para garantir que o código tenha qualidade de software sênior desde o dia zero, adotaremos as seguintes premissas:
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-This project is already instrumented. Create a free account at [observe.nestjs.com](https://observe.nestjs.com), add an application, and paste the generated app key and secret into the `ObserveModule.forRoot()` call in `src/app.module.ts`.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. **Nomenclatura Padrão:** O código será escrito integralmente com variáveis, classes e, **estritamente**, nomes de funções em inglês (ex: `processPatientRecord`, `streamFileToDisk`).
+2. **Documentação Profissional:** Proibido o uso de comentários *inline* para explicar código óbvio. Utilizaremos **docstrings** completas e formatadas nas assinaturas de classes, interfaces e métodos para que a IDE (Cursor/Windsurf/VSCode) possa fornecer inteligência de contexto.
+3. **Acesso a Dados Otimizado:** Vamos evitar o overhead de ORMs tradicionais em consultas de leitura complexas. Priorizaremos estratégias de *Fast-Path querysets* direto no banco, prevenindo o problema de *N+1 queries* logo na modelagem estrutural.
+4. **Isolamento de Domínio:** O Monorepo será fatiado de forma que o frontend não conheça regras de negócio e o backend não conheça regras de renderização. O único elo de acoplamento será o pacote compartilhado `packages/contracts` (onde viverão os arquivos `.proto`).
